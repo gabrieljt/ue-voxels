@@ -35,6 +35,9 @@
 *.opensdf
 *.sdf
 
+# Custom generated files
+*.VC.opendb
+
 # Precompiled Assets
 SourceArt/**/*.png
 SourceArt/**/*.tga
