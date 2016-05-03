@@ -32,7 +32,7 @@ public:
 		void LogVoxels() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Utils")
-		int32 GetVoxelType(int32 i, int32 j, int32 k);
+		int32 GetVoxelType(int32 i, int32 j, int32 k) const;
 
 private:
 	UPROPERTY(VisibleAnywhere)

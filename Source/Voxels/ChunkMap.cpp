@@ -27,11 +27,9 @@ UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
 	Voxels.Init(0, X * Y * Z);
 }
 
-// Called when the game starts
 void UChunkMap::BeginPlay()
 {
 	Super::BeginPlay();
-	//LogVoxels();
 }
 
 void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -70,7 +68,7 @@ void UChunkMap::LogVoxels() const
 	}
 }
 
-int32 UChunkMap::GetVoxelType(int32 i, int32 j, int32 k)
+int32 UChunkMap::GetVoxelType(int32 i, int32 j, int32 k) const
 {
 	return Voxels[GetArrayIndex(i, j, k)];
 }
