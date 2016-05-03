@@ -4,7 +4,9 @@
 #include "ChunkMap.h"
 
 UChunkMap::UChunkMap()
-	: X(3)
+	: FillMethod(EChunkFillMethod::CFM_Random)
+	, VoxelTypesQuantity(2)
+	, X(3)
 	, Y(3)
 	, Z(3)
 	, Voxels()
@@ -16,7 +18,9 @@ UChunkMap::UChunkMap()
 }
 
 UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
-	: X(X)
+	: FillMethod(EChunkFillMethod::CFM_Random)
+	, VoxelTypesQuantity(2)
+	, X(X)
 	, Y(Y)
 	, Z(Z)
 	, Voxels()
@@ -30,6 +34,7 @@ UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
 void UChunkMap::BeginPlay()
 {
 	Super::BeginPlay();
+	check(VoxelTypesQuantity > 1);
 }
 
 void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -37,41 +42,7 @@ void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UChunkMap::GenerateRandomChunk()
-{
-	for (int32 i = 0; i < X; ++i)
-	{
-		for (int32 j = 0; j < Y; ++j)
-		{
-			for (int32 k = 0; k < Z; ++k)
-			{
-				Voxels[GetArrayIndex(i, j, k)] = GetArrayIndex(i, j, k) % 2 == 0;
-			}
-		}
-	}
-}
-
-void UChunkMap::LogVoxels() const
-{
-	for (int32 i = 0; i < X; ++i)
-	{
-		for (int32 j = 0; j < Y; ++j)
-		{
-			for (int32 k = 0; k < Z; ++k)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Voxels[%d,%d,%d]:%d"),
-					i, j, k,
-					Voxels[GetArrayIndex(i, j, k)]
-				)
-			}
-		}
-	}
-}
-
-int32 UChunkMap::GetVoxelType(int32 i, int32 j, int32 k) const
-{
-	return Voxels[GetArrayIndex(i, j, k)];
-}
+#pragma region Public BP functions
 
 void UChunkMap::SetVolume(int32 X, int32 Y, int32 Z)
 {
@@ -81,7 +52,78 @@ void UChunkMap::SetVolume(int32 X, int32 Y, int32 Z)
 	Voxels.Init(0, X * Y * Z);
 }
 
-int32 UChunkMap::GetArrayIndex(int32 i, int32 j, int32 k) const
+void UChunkMap::GenerateChunk()
 {
-	return i + X * (j + Y * k);
+	for (int32 I = 0; I < X; ++I)
+	{
+		for (int32 J = 0; J < Y; ++J)
+		{
+			for (int32 K = 0; K < Z; ++K)
+			{
+				switch (FillMethod)
+				{
+				case EChunkFillMethod::CFM_Modulum:
+					Voxels[GetArrayIndex(I, J, K)] = GetArrayIndex(I, J, K) % VoxelTypesQuantity == 0;
+					break;
+				case EChunkFillMethod::CFM_Random:
+				default:
+					Voxels[GetArrayIndex(I, J, K)] = FMath::RandRange(0, VoxelTypesQuantity - 1);
+					break;
+				}
+			}
+		}
+	}
 }
+
+void UChunkMap::LogVoxels() const
+{
+	for (int32 I = 0; I < X; ++I)
+	{
+		for (int32 J = 0; J < Y; ++J)
+		{
+			for (int32 K = 0; K < Z; ++K)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Voxels[%d,%d,%d]:%d"),
+					I, J, K,
+					Voxels[GetArrayIndex(I, J, K)]
+				)
+			}
+		}
+	}
+}
+
+int32 UChunkMap::GetVoxelType(int32 I, int32 J, int32 K) const
+{
+	return Voxels[GetArrayIndex(I, J, K)];
+}
+
+EChunkFillMethod UChunkMap::GetChunkFillMethod() const
+{
+	return FillMethod;
+}
+
+int32 UChunkMap::GetVoxelTypesQuantity() const
+{
+	return VoxelTypesQuantity;
+}
+
+void UChunkMap::SetChunkFillMethod(EChunkFillMethod FillMethod)
+{
+	this->FillMethod = FillMethod;
+}
+
+void UChunkMap::SetVoxelTypesQuantity(int32 VoxelTypesQuantity)
+{
+	this->VoxelTypesQuantity = VoxelTypesQuantity;
+}
+
+#pragma endregion
+
+#pragma region Private functions
+
+int32 UChunkMap::GetArrayIndex(int32 I, int32 J, int32 K) const
+{
+	return I + X * (J + Y * K);
+}
+
+#pragma endregion
