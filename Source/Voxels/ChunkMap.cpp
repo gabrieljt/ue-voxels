@@ -4,7 +4,7 @@
 #include "ChunkMap.h"
 
 UChunkMap::UChunkMap()
-	: FillMethod(EChunkFillMethod::CFM_Random)
+	: FillMethod(EChunkFillMethod::CFM_Diagonal)
 	, VoxelTypesQuantity(2)
 	, X(3)
 	, Y(3)
@@ -18,7 +18,7 @@ UChunkMap::UChunkMap()
 }
 
 UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
-	: FillMethod(EChunkFillMethod::CFM_Random)
+	: FillMethod(EChunkFillMethod::CFM_Diagonal)
 	, VoxelTypesQuantity(2)
 	, X(X)
 	, Y(Y)
@@ -65,10 +65,17 @@ void UChunkMap::GenerateChunk()
 				case EChunkFillMethod::CFM_Modulum:
 					Voxels[GetArrayIndex(I, J, K)] = GetArrayIndex(I, J, K) % VoxelTypesQuantity == 0;
 					break;
+				case EChunkFillMethod::CFM_Diagonal:
+					Voxels[GetArrayIndex(I, J, K)] = I == J && J == K;
+					break;
 				case EChunkFillMethod::CFM_Random:
-				default:
 					Voxels[GetArrayIndex(I, J, K)] = FMath::RandRange(0, VoxelTypesQuantity - 1);
 					break;
+				default:
+					UE_LOG(LogTemp, Error, TEXT("%s not implemented"),
+						*GetEnumValueToString<EChunkFillMethod>("EChunkFillMethod", FillMethod)
+					)
+					return;
 				}
 			}
 		}
@@ -124,6 +131,18 @@ void UChunkMap::SetVoxelTypesQuantity(int32 VoxelTypesQuantity)
 int32 UChunkMap::GetArrayIndex(int32 I, int32 J, int32 K) const
 {
 	return I + X * (J + Y * K);
+}
+
+template<typename TEnum>
+FString UChunkMap::GetEnumValueToString(const FString& Name, TEnum Value)
+{
+	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, *Name, true);
+	if (!enumPtr)
+	{
+		return FString("Invalid");
+	}
+
+	return enumPtr->GetEnumName((int32)Value);
 }
 
 #pragma endregion

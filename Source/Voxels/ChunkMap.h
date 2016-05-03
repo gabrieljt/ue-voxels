@@ -8,9 +8,10 @@
 UENUM(BlueprintType)
 enum class EChunkFillMethod : uint8
 {
-	CFM_Modulum 	UMETA(DisplayName = "Modulum"),
-	CFM_Random 	UMETA(DisplayName = "Random"),
-	CFM_Noise	UMETA(DisplayName = "Noise")
+	CFM_Modulum		UMETA(DisplayName = "Modulum"),
+	CFM_Random		UMETA(DisplayName = "Random"),
+	CFM_Noise		UMETA(DisplayName = "Noise"),
+	CFM_Diagonal	UMETA(DisplayName = "Diagonal")
 };
 
 UCLASS(ClassGroup = (Custom), meta = (Blueprint32SpawnableComponent))
@@ -74,4 +75,8 @@ private:
 		TArray<int32> Voxels;
 
 	int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
+
+	template<typename TEnum>
+	static FORCEINLINE FString GetEnumValueToString(const FString& Name, TEnum Value);
+	
 };
