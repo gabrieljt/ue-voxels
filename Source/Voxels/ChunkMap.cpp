@@ -60,28 +60,7 @@ void UChunkMap::GenerateChunk()
 		{
 			for (int32 K = 0; K < Z; ++K)
 			{
-				switch (FillMethod)
-				{
-				case EChunkFillMethod::CFM_Modulum:
-					Voxels[GetArrayIndex(I, J, K)] = GetArrayIndex(I, J, K) % VoxelTypesQuantity == 0;
-					break;
-				case EChunkFillMethod::CFM_Diagonal:
-					Voxels[GetArrayIndex(I, J, K)] = I == J && J == K;
-					break;
-				case EChunkFillMethod::CFM_Hollow:
-					Voxels[GetArrayIndex(I, J, K)] = ((I == 0 && J == 0) && K >= 0) || ((I == 0 && K == 0) && J >= 0) || ((J == 0 && K == 0) && I >= 0)
-						|| ((I >= 0 && J >= 0) && K == Z - 1) || ((I >= 0 && K >= 0) && J == Y - 1) || ((J >= 0 && K >= 0) && I == X - 1) ? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
-					//I == 0 ||J  == 0 || K == 0 || I == X || J == Y || K == Z ? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
-					break;
-				case EChunkFillMethod::CFM_Random:
-					Voxels[GetArrayIndex(I, J, K)] = FMath::RandRange(0, VoxelTypesQuantity - 1);
-					break;
-				default:
-					UE_LOG(LogTemp, Error, TEXT("EChunkFillMethod::%s not implemented"),
-						*GetEnumValueToString<EChunkFillMethod>("EChunkFillMethod", FillMethod)
-						)
-						return;
-				}
+				SetVoxelByFillMethod(I, J, K);
 			}
 		}
 	}
@@ -119,6 +98,11 @@ int32 UChunkMap::GetVoxelTypesQuantity() const
 	return VoxelTypesQuantity;
 }
 
+void UChunkMap::SetVoxel(const int32 I, const int32 J, const int32 K, const int32 Voxel)
+{
+	Voxels[GetArrayIndex(I, J, K)] = Voxel;
+}
+
 void UChunkMap::SetChunkFillMethod(EChunkFillMethod FillMethod)
 {
 	this->FillMethod = FillMethod;
@@ -136,6 +120,58 @@ void UChunkMap::SetVoxelTypesQuantity(int32 VoxelTypesQuantity)
 int32 UChunkMap::GetArrayIndex(int32 I, int32 J, int32 K) const
 {
 	return I + X * (J + Y * K);
+}
+
+int32 UChunkMap::GetModulumFillMethodValue(const int32 I, const int32 J, const int32 K) const
+{
+	return GetArrayIndex(I, J, K) % VoxelTypesQuantity == 0;
+}
+
+int32 UChunkMap::GetDiagonalFillMethodValue(const int32 I, const int32 J, const int32 K) const
+{
+	return  I == J || I == K || J == K;
+}
+
+int32 UChunkMap::GetHollowFillMethodValue(const int32 I, const int32 J, const int32 K) const
+{
+	return  (I == 0 && (J >= 0 && K >= 0)) || (I == 0 && (J >= 0 && K >= 0)) || (J == 0 && (I >= 0 && K == 0))
+		|| ((I >= 0 && J >= 0) && K == Z - 1) || ((I >= 0 && K >= 0) && J == Y - 1) || ((J >= 0 && K >= 0) && I == X - 1)
+		|| ((I <= X - 1 && J <= Y - 1) && K == 0) || ((I <= X - 1 && K <= Z - 1) && J == 0) || ((J <= Y - 1 && K <= Z - 1) && I == 0)
+		? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
+}
+
+int32 UChunkMap::GetHollowRandomFillMethodValue(const int32 I, const int32 J, const int32 K) const
+{
+	return  GetHollowFillMethodValue(I, J, K) < VoxelTypesQuantity - 1 ? GetRandomFillMethodValue() : VoxelTypesQuantity - 1;
+}
+
+int32 UChunkMap::GetRandomFillMethodValue() const
+{
+	return  FMath::RandRange(0, VoxelTypesQuantity - 1);
+}
+
+void UChunkMap::SetVoxelByFillMethod(int32 &I, int32 &J, int32 &K)
+{
+	switch (FillMethod)
+	{
+	case EChunkFillMethod::CFM_Modulum:
+		Voxels[GetArrayIndex(I, J, K)] = GetModulumFillMethodValue(I, J, K);
+		break;
+	case EChunkFillMethod::CFM_Diagonal:
+		Voxels[GetArrayIndex(I, J, K)] = GetDiagonalFillMethodValue(I, J, K);
+		break;
+	case EChunkFillMethod::CFM_Hollow:
+		Voxels[GetArrayIndex(I, J, K)] = GetHollowFillMethodValue(I, J, K);
+		break;
+	case EChunkFillMethod::CFM_Random:
+		Voxels[GetArrayIndex(I, J, K)] = GetRandomFillMethodValue();
+		break;
+	default:
+		UE_LOG(LogTemp, Error, TEXT("EChunkFillMethod::%s not implemented"),
+			*GetEnumValueToString<EChunkFillMethod>("EChunkFillMethod", FillMethod)
+			)
+			return;
+	}
 }
 
 template<typename TEnum>

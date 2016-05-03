@@ -8,11 +8,12 @@
 UENUM(BlueprintType)
 enum class EChunkFillMethod : uint8
 {
-	CFM_Modulum		UMETA(DisplayName = "Modulum"),
-	CFM_Diagonal	UMETA(DisplayName = "Diagonal"),
-	CFM_Hollow		UMETA(DisplayName = "Hollow"),
-	CFM_Random		UMETA(DisplayName = "Random"),
-	CFM_Noise		UMETA(DisplayName = "Noise")
+	CFM_Modulum			UMETA(DisplayName = "Modulum"),
+	CFM_Diagonal		UMETA(DisplayName = "Diagonal"),
+	CFM_Hollow			UMETA(DisplayName = "Hollow"),
+	CFM_Hollow_Random	UMETA(DisplayName = "Hollow Random"),
+	CFM_Random			UMETA(DisplayName = "Random"),
+	CFM_Noise			UMETA(DisplayName = "Noise")
 };
 
 UCLASS(ClassGroup = (Custom), meta = (Blueprint32SpawnableComponent))
@@ -37,7 +38,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Generation")
 		void GenerateChunk();
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Chunk Utils")
 		void LogVoxels() const;
 
@@ -49,6 +50,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
 		int32 GetVoxelTypesQuantity() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
+		void SetVoxel(const int32 I, const int32 J, const int32 K, const int32 Voxel);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetChunkFillMethod(EChunkFillMethod FillMethod);
@@ -77,7 +81,18 @@ private:
 
 	int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
 
+	int32 GetModulumFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetDiagonalFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetHollowFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetHollowRandomFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetRandomFillMethodValue() const;
+
+	void SetVoxelByFillMethod(int32 &I, int32 &J, int32 &K);
+
 	template<typename TEnum>
 	static FORCEINLINE FString GetEnumValueToString(const FString& Name, TEnum Value);
-	
 };
