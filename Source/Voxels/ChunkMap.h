@@ -32,10 +32,11 @@ public:
 		void LogVoxels() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Utils")
-		int32 GetVoxelType(int32 i, int32 j, int32 k) const;
+		int32 GetVoxelType(int32 i, int32 j, int32 k);
 
 private:
-	TArray<int32> Voxels;
+	UPROPERTY(VisibleAnywhere)
+		TArray<int32> Voxels;
 
 	UPROPERTY(VisibleAnywhere)
 		int32 X;

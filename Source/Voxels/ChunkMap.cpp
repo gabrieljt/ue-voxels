@@ -31,7 +31,7 @@ UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
 void UChunkMap::BeginPlay()
 {
 	Super::BeginPlay();
-	LogVoxels();
+	//LogVoxels();
 }
 
 void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -47,7 +47,7 @@ void UChunkMap::GenerateRandomChunk()
 		{
 			for (int32 k = 0; k < Z; ++k)
 			{
-				Voxels[GetArrayIndex(i, j, k)] = 1;
+				Voxels[GetArrayIndex(i, j, k)] = GetArrayIndex(i, j, k) % 2 == 0;
 			}
 		}
 	}
@@ -70,7 +70,7 @@ void UChunkMap::LogVoxels() const
 	}
 }
 
-int32 UChunkMap::GetVoxelType(int32 i, int32 j, int32 k) const
+int32 UChunkMap::GetVoxelType(int32 i, int32 j, int32 k)
 {
 	return Voxels[GetArrayIndex(i, j, k)];
 }
