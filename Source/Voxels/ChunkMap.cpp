@@ -68,14 +68,19 @@ void UChunkMap::GenerateChunk()
 				case EChunkFillMethod::CFM_Diagonal:
 					Voxels[GetArrayIndex(I, J, K)] = I == J && J == K;
 					break;
+				case EChunkFillMethod::CFM_Hollow:
+					Voxels[GetArrayIndex(I, J, K)] = ((I == 0 && J == 0) && K >= 0) || ((I == 0 && K == 0) && J >= 0) || ((J == 0 && K == 0) && I >= 0)
+						|| ((I >= 0 && J >= 0) && K == Z - 1) || ((I >= 0 && K >= 0) && J == Y - 1) || ((J >= 0 && K >= 0) && I == X - 1) ? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
+					//I == 0 ||J  == 0 || K == 0 || I == X || J == Y || K == Z ? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
+					break;
 				case EChunkFillMethod::CFM_Random:
 					Voxels[GetArrayIndex(I, J, K)] = FMath::RandRange(0, VoxelTypesQuantity - 1);
 					break;
 				default:
-					UE_LOG(LogTemp, Error, TEXT("%s not implemented"),
+					UE_LOG(LogTemp, Error, TEXT("EChunkFillMethod::%s not implemented"),
 						*GetEnumValueToString<EChunkFillMethod>("EChunkFillMethod", FillMethod)
-					)
-					return;
+						)
+						return;
 				}
 			}
 		}
@@ -93,7 +98,7 @@ void UChunkMap::LogVoxels() const
 				UE_LOG(LogTemp, Warning, TEXT("Voxels[%d,%d,%d]:%d"),
 					I, J, K,
 					Voxels[GetArrayIndex(I, J, K)]
-				)
+					)
 			}
 		}
 	}

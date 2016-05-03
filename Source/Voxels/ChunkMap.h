@@ -9,9 +9,10 @@ UENUM(BlueprintType)
 enum class EChunkFillMethod : uint8
 {
 	CFM_Modulum		UMETA(DisplayName = "Modulum"),
+	CFM_Diagonal	UMETA(DisplayName = "Diagonal"),
+	CFM_Hollow		UMETA(DisplayName = "Hollow"),
 	CFM_Random		UMETA(DisplayName = "Random"),
-	CFM_Noise		UMETA(DisplayName = "Noise"),
-	CFM_Diagonal	UMETA(DisplayName = "Diagonal")
+	CFM_Noise		UMETA(DisplayName = "Noise")
 };
 
 UCLASS(ClassGroup = (Custom), meta = (Blueprint32SpawnableComponent))
