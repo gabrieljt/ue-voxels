@@ -15,7 +15,7 @@ UChunkMap::UChunkMap()
 	Voxels.Init(0, X * Y * Z);
 }
 
-UChunkMap::UChunkMap(const int X, const int Y, const int Z)
+UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
 	: X(X)
 	, Y(Y)
 	, Z(Z)
@@ -31,17 +31,35 @@ UChunkMap::UChunkMap(const int X, const int Y, const int Z)
 void UChunkMap::BeginPlay()
 {
 	Super::BeginPlay();
-
 	LogVoxels();
+}
+
+void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UChunkMap::GenerateRandomChunk()
+{
+	for (int32 i = 0; i < X; ++i)
+	{
+		for (int32 j = 0; j < Y; ++j)
+		{
+			for (int32 k = 0; k < Z; ++k)
+			{
+				Voxels[GetArrayIndex(i, j, k)] = 1;
+			}
+		}
+	}
 }
 
 void UChunkMap::LogVoxels() const
 {
-	for (int i = 0; i < X; ++i)
+	for (int32 i = 0; i < X; ++i)
 	{
-		for (int j = 0; j < Y; ++j)
+		for (int32 j = 0; j < Y; ++j)
 		{
-			for (int k = 0; k < Z; ++k)
+			for (int32 k = 0; k < Z; ++k)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Voxels[%d,%d,%d]:%d"),
 					i, j, k,
@@ -52,27 +70,20 @@ void UChunkMap::LogVoxels() const
 	}
 }
 
-int UChunkMap::GetArrayIndex(int i, int j, int k) const
+int32 UChunkMap::GetVoxelType(int32 i, int32 j, int32 k) const
+{
+	return Voxels[GetArrayIndex(i, j, k)];
+}
+
+void UChunkMap::SetVolume(int32 X, int32 Y, int32 Z)
+{
+	this->X = X;
+	this->Y = Y;
+	this->Z = Z;
+	Voxels.Init(0, X * Y * Z);
+}
+
+int32 UChunkMap::GetArrayIndex(int32 i, int32 j, int32 k) const
 {
 	return i + X * (j + Y * k);
-}
-
-// Called every frame
-void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UChunkMap::GenerateRandomChunk()
-{
-	for (int i = 0; i < X; ++i)
-	{
-		for (int j = 0; j < Y; ++j)
-		{
-			for (int k = 0; k < Z; ++k)
-			{
-				Voxels[GetArrayIndex(i, j, k)] = 1;
-			}
-		}
-	}
 }
