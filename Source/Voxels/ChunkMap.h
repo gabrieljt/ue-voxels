@@ -6,12 +6,14 @@
 #include "ChunkMap.generated.h"
 
 UENUM(BlueprintType)
-enum class EChunkFillMethod : uint8
+enum class EChunkPattern : uint8
 {
-	CFM_Modulum		UMETA(DisplayName = "Modulum"),
-	CFM_Random		UMETA(DisplayName = "Random"),
-	CFM_Noise		UMETA(DisplayName = "Noise"),
-	CFM_Diagonal	UMETA(DisplayName = "Diagonal")
+	CP_Modulum			UMETA(DisplayName = "Modulum"),
+	CP_Diagonal		UMETA(DisplayName = "Diagonal"),
+	CP_Hollow			UMETA(DisplayName = "Hollow"),
+	CP_Random			UMETA(DisplayName = "Random"),
+	CP_Random_Hollow	UMETA(DisplayName = "Random Hollow"),
+	CP_Noise			UMETA(DisplayName = "Noise")
 };
 
 UCLASS(ClassGroup = (Custom), meta = (Blueprint32SpawnableComponent))
@@ -41,23 +43,26 @@ public:
 		void LogVoxels() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
-		int32 GetVoxelType(int32 I, int32 J, int32 K) const;
+		int32 GetVoxel(int32 I, int32 J, int32 K) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
-		EChunkFillMethod GetChunkFillMethod() const;
+		EChunkPattern GetChunkPattern() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
-		int32 GetVoxelTypesQuantity() const;
+		int32 GetVoxelTypes() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
-		void SetChunkFillMethod(EChunkFillMethod FillMethod);
+		void SetVoxel(const int32 I, const int32 J, const int32 K, const int32 Voxel);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
-		void SetVoxelTypesQuantity(int32 VoxelTypesQuantity);
+		void SetChunkPattern(EChunkPattern Pattern);
+
+	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
+		void SetVoxelTypes(int32 VoxelTypesQuantity);
 
 private:
 	UPROPERTY(VisibleAnywhere)
-		EChunkFillMethod FillMethod;
+		EChunkPattern Pattern;
 
 	UPROPERTY(VisibleAnywhere)
 		int32 VoxelTypesQuantity;
@@ -76,7 +81,20 @@ private:
 
 	int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
 
+	int32 GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetDiagonalPatternValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetRandomPatternValue() const;
+
+	int32 GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
+
+	bool IsBorder(const int32 I, const int32 J, const int32 K) const;
+
+	void GenerateValue(const int32 I, const int32 J, const int32 K);
+
 	template<typename TEnum>
 	static FORCEINLINE FString GetEnumValueToString(const FString& Name, TEnum Value);
-	
 };
