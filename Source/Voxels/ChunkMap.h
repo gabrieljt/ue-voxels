@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetVoxelTypes(int32 VoxelTypesQuantity);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Utils")
+		int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 		EChunkPattern Pattern;
@@ -78,8 +81,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 		TArray<int32> Voxels;
-
-	int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
 
 	int32 GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const;
 
