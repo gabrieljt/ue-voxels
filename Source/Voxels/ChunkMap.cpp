@@ -83,17 +83,17 @@ void UChunkMap::LogVoxels() const
 	}
 }
 
-int32 UChunkMap::GetVoxelType(int32 I, int32 J, int32 K) const
+int32 UChunkMap::GetVoxel(int32 I, int32 J, int32 K) const
 {
 	return Voxels[GetArrayIndex(I, J, K)];
 }
 
-EChunkPattern UChunkMap::GetChunkFillMethod() const
+EChunkPattern UChunkMap::GetChunkPattern() const
 {
 	return Pattern;
 }
 
-int32 UChunkMap::GetVoxelTypesQuantity() const
+int32 UChunkMap::GetVoxelTypes() const
 {
 	return VoxelTypesQuantity;
 }
@@ -103,12 +103,12 @@ void UChunkMap::SetVoxel(const int32 I, const int32 J, const int32 K, const int3
 	Voxels[GetArrayIndex(I, J, K)] = Voxel;
 }
 
-void UChunkMap::SetChunkPattern(EChunkPattern FillMethod)
+void UChunkMap::SetChunkPattern(EChunkPattern Pattern)
 {
-	this->Pattern = FillMethod;
+	this->Pattern = Pattern;
 }
 
-void UChunkMap::SetVoxelTypesQuantity(int32 VoxelTypesQuantity)
+void UChunkMap::SetVoxelTypes(int32 VoxelTypesQuantity)
 {
 	this->VoxelTypesQuantity = VoxelTypesQuantity;
 }
@@ -122,29 +122,29 @@ int32 UChunkMap::GetArrayIndex(int32 I, int32 J, int32 K) const
 	return I + X * (J + Y * K);
 }
 
-int32 UChunkMap::GetModulumFillMethodValue(const int32 I, const int32 J, const int32 K) const
+int32 UChunkMap::GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const
 {
 	return GetArrayIndex(I, J, K) % VoxelTypesQuantity == 0;
 }
 
-int32 UChunkMap::GetDiagonalFillMethodValue(const int32 I, const int32 J, const int32 K) const
+int32 UChunkMap::GetDiagonalPatternValue(const int32 I, const int32 J, const int32 K) const
 {
 	return  I == J || I == K || J == K;
 }
 
-int32 UChunkMap::GetHollowFillMethodValue(const int32 I, const int32 J, const int32 K) const
+int32 UChunkMap::GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const
 {
 	return  IsBorder(I, J, K) ? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
 }
 
-int32 UChunkMap::GetRandomFillMethodValue() const
+int32 UChunkMap::GetRandomPatternValue() const
 {
 	return  FMath::RandRange(0, VoxelTypesQuantity - 1);
 }
 
-int32 UChunkMap::GetRandomHollowFillMethodValue(const int32 I, const int32 J, const int32 K) const
+int32 UChunkMap::GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  GetHollowFillMethodValue(I, J, K) < VoxelTypesQuantity - 1 ? GetRandomFillMethodValue() : VoxelTypesQuantity - 1;
+	return  GetHollowPatternValue(I, J, K) < VoxelTypesQuantity - 1 ? GetRandomPatternValue() : VoxelTypesQuantity - 1;
 }
 
 bool UChunkMap::IsBorder(const int32 I, const int32 J, const int32 K) const
@@ -159,22 +159,22 @@ void UChunkMap::GenerateValue(const int32 I, const int32 J, const int32 K)
 	switch (Pattern)
 	{
 	case EChunkPattern::CP_Modulum:
-		Voxels[GetArrayIndex(I, J, K)] = GetModulumFillMethodValue(I, J, K);
+		Voxels[GetArrayIndex(I, J, K)] = GetModulumPatternValue(I, J, K);
 		break;
 	case EChunkPattern::CP_Diagonal:
-		Voxels[GetArrayIndex(I, J, K)] = GetDiagonalFillMethodValue(I, J, K);
+		Voxels[GetArrayIndex(I, J, K)] = GetDiagonalPatternValue(I, J, K);
 		break;
 	case EChunkPattern::CP_Hollow:
-		Voxels[GetArrayIndex(I, J, K)] = GetHollowFillMethodValue(I, J, K);
+		Voxels[GetArrayIndex(I, J, K)] = GetHollowPatternValue(I, J, K);
 		break;
 	case EChunkPattern::CP_Random_Hollow:
-		Voxels[GetArrayIndex(I, J, K)] = GetRandomHollowFillMethodValue(I, J, K);
+		Voxels[GetArrayIndex(I, J, K)] = GetRandomHollowPatternValue(I, J, K);
 		break;
 	case EChunkPattern::CP_Random:
-		Voxels[GetArrayIndex(I, J, K)] = GetRandomFillMethodValue();
+		Voxels[GetArrayIndex(I, J, K)] = GetRandomPatternValue();
 		break;
 	default:
-		UE_LOG(LogTemp, Error, TEXT("EChunkFillMethod::%s not implemented"),
+		UE_LOG(LogTemp, Error, TEXT("EChunkPattern::%s not implemented"),
 			*GetEnumValueToString<EChunkPattern>("EChunkPattern", Pattern)
 		)
 			checkNoEntry();

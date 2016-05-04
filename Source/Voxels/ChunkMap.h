@@ -43,22 +43,22 @@ public:
 		void LogVoxels() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
-		int32 GetVoxelType(int32 I, int32 J, int32 K) const;
+		int32 GetVoxel(int32 I, int32 J, int32 K) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
-		EChunkPattern GetChunkFillMethod() const;
+		EChunkPattern GetChunkPattern() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
-		int32 GetVoxelTypesQuantity() const;
+		int32 GetVoxelTypes() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetVoxel(const int32 I, const int32 J, const int32 K, const int32 Voxel);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
-		void SetChunkPattern(EChunkPattern FillMethod);
+		void SetChunkPattern(EChunkPattern Pattern);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
-		void SetVoxelTypesQuantity(int32 VoxelTypesQuantity);
+		void SetVoxelTypes(int32 VoxelTypesQuantity);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -81,15 +81,15 @@ private:
 
 	int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
 
-	int32 GetModulumFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+	int32 GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const;
 
-	int32 GetDiagonalFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+	int32 GetDiagonalPatternValue(const int32 I, const int32 J, const int32 K) const;
 
-	int32 GetHollowFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+	int32 GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
 
-	int32 GetRandomFillMethodValue() const;
+	int32 GetRandomPatternValue() const;
 
-	int32 GetRandomHollowFillMethodValue(const int32 I, const int32 J, const int32 K) const;
+	int32 GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
 
 	bool IsBorder(const int32 I, const int32 J, const int32 K) const;
 
