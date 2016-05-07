@@ -16,6 +16,8 @@ enum class EChunkPattern : uint8
 	CP_Noise			UMETA(DisplayName = "Noise")
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FVoxelEvent);
+
 UCLASS(ClassGroup = (Custom), meta = (Blueprint32SpawnableComponent))
 class VOXELS_API UChunkMap : public USceneComponent
 {
@@ -27,16 +29,22 @@ public:
 
 	UChunkMap(const int32, const int32, const int32);
 
+	UPROPERTY(BlueprintAssignable)
+		FVoxelEvent OnAddVoxel;
+
+	UPROPERTY(BlueprintAssignable)
+		FVoxelEvent OnRemoveVoxel;
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Chunk Generation")
+	UFUNCTION(BlueprintCallable, Category = "Chunk Init")
 		void SetVolume(int32 Width, int32 Depth, int32 Height);
 
-	UFUNCTION(BlueprintCallable, Category = "Chunk Generation")
+	UFUNCTION(BlueprintCallable, Category = "Chunk Init")
 		void GenerateChunk();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
@@ -51,19 +59,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetVoxel(int32 I, int32 J, int32 K, const int32 Voxel);
 
+	UFUNCTION(BlueprintCallable, Category = "Chunk API")
+		void AddVoxel(int32 I, int32 J, int32 K, const int32 VoxelType);
+
+	UFUNCTION(BlueprintCallable, Category = "Chunk API")
+		void RemoveVoxel(int32 I, int32 J, int32 K);
+
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetChunkPattern(EChunkPattern Pattern);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetVoxelTypes(int32 VoxelTypes);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Utils")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk API")
 		int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Utils")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk API")
 		bool IsValidIndex(int32 I, int32 J, int32 K) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Chunk Utils")
+	UFUNCTION(BlueprintCallable, Category = "Chunk API")
 		void LogVoxels() const;
 
 private:
