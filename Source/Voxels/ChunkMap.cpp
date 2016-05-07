@@ -134,7 +134,7 @@ int32 UChunkMap::GetModulumPatternValue(const int32 I, const int32 J, const int3
 
 int32 UChunkMap::GetPlanePatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  K < 1 ? 0 : VoxelTypes - 1;
+	return  K < 1 ? GetRandomSolidVoxel() : VoxelTypes - 1;
 }
 
 int32 UChunkMap::GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const
@@ -154,7 +154,7 @@ int32 UChunkMap::GetRandomVoxel() const
 
 int32 UChunkMap::GetRandomSolidVoxel() const
 {
-	return FMath::Clamp(FMath::RandRange(0, VoxelTypes - 1) - 1, 0, FMath::RandRange(0, VoxelTypes - 1) - 1);
+	return FMath::Clamp(FMath::RandRange(0, VoxelTypes - 1) - 1, 0, VoxelTypes - 2);
 }
 
 bool UChunkMap::IsBorder(const int32 I, const int32 J, const int32 K) const
