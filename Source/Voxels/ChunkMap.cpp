@@ -4,37 +4,37 @@
 #include "ChunkMap.h"
 
 UChunkMap::UChunkMap()
-	: Pattern(EChunkPattern::CP_Diagonal)
-	, VoxelTypesQuantity(2)
-	, X(3)
-	, Y(3)
-	, Z(3)
+	: Pattern(EChunkPattern::CP_Plane)
+	, VoxelTypes(2) // Default Solid and Empty Types (0, 1)
+	, Width(3)
+	, Depth(3)
+	, Height(3)
 	, Voxels()
 {
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
-	Voxels.Init(0, X * Y * Z);
+	Voxels.Init(0, Width * Depth * Height);
 }
 
-UChunkMap::UChunkMap(const int32 X, const int32 Y, const int32 Z)
-	: Pattern(EChunkPattern::CP_Diagonal)
-	, VoxelTypesQuantity(2)
-	, X(X)
-	, Y(Y)
-	, Z(Z)
+UChunkMap::UChunkMap(const int32 Width, const int32 Depth, const int32 Height)
+	: Pattern(EChunkPattern::CP_Plane)
+	, VoxelTypes(2)
+	, Width(Width)
+	, Depth(Depth)
+	, Height(Height)
 	, Voxels()
 {
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
-	Voxels.Init(0, X * Y * Z);
+	Voxels.Init(0, Width * Depth * Height);
 }
 
 void UChunkMap::BeginPlay()
 {
 	Super::BeginPlay();
-	check(VoxelTypesQuantity > 1);
+	check(VoxelTypes > 1);
 }
 
 void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,40 +44,23 @@ void UChunkMap::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 #pragma region Public BP functions
 
-void UChunkMap::SetVolume(int32 X, int32 Y, int32 Z)
+void UChunkMap::SetVolume(int32 Width, int32 Depth, int32 Height)
 {
-	this->X = X;
-	this->Y = Y;
-	this->Z = Z;
-	Voxels.Init(0, X * Y * Z);
+	this->Width = Width;
+	this->Depth = Depth;
+	this->Height = Height;
+	Voxels.Init(0, Width * Depth * Height);
 }
 
 void UChunkMap::GenerateChunk()
 {
-	for (int32 I = 0; I < X; ++I)
+	for (int32 I = 0; I < Width; ++I)
 	{
-		for (int32 J = 0; J < Y; ++J)
+		for (int32 J = 0; J < Depth; ++J)
 		{
-			for (int32 K = 0; K < Z; ++K)
+			for (int32 K = 0; K < Height; ++K)
 			{
 				GenerateValue(I, J, K);
-			}
-		}
-	}
-}
-
-void UChunkMap::LogVoxels() const
-{
-	for (int32 I = 0; I < X; ++I)
-	{
-		for (int32 J = 0; J < Y; ++J)
-		{
-			for (int32 K = 0; K < Z; ++K)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Voxels[%d,%d,%d]:%d"),
-					I, J, K,
-					Voxels[GetArrayIndex(I, J, K)]
-				)
 			}
 		}
 	}
@@ -95,10 +78,10 @@ EChunkPattern UChunkMap::GetChunkPattern() const
 
 int32 UChunkMap::GetVoxelTypes() const
 {
-	return VoxelTypesQuantity;
+	return VoxelTypes;
 }
 
-void UChunkMap::SetVoxel(const int32 I, const int32 J, const int32 K, const int32 Voxel)
+void UChunkMap::SetVoxel(int32 I, int32 J, int32 K, const int32 Voxel)
 {
 	Voxels[GetArrayIndex(I, J, K)] = Voxel;
 }
@@ -108,50 +91,77 @@ void UChunkMap::SetChunkPattern(EChunkPattern Pattern)
 	this->Pattern = Pattern;
 }
 
-void UChunkMap::SetVoxelTypes(int32 VoxelTypesQuantity)
+void UChunkMap::SetVoxelTypes(int32 VoxelTypes)
 {
-	this->VoxelTypesQuantity = VoxelTypesQuantity;
+	this->VoxelTypes = VoxelTypes;
+}
+
+int32 UChunkMap::GetArrayIndex(int32 I, int32 J, int32 K) const
+{
+	return I + Width * (J + Depth * K);
+}
+
+bool UChunkMap::IsValidIndex(int32 I, int32 J, int32 K) const
+{
+	return (I >= 0 && I < Width) && (J >= 0 && J < Depth) && (K >= 0 && K < Height);
+}
+
+void UChunkMap::LogVoxels() const
+{
+	for (int32 I = 0; I < Width; ++I)
+	{
+		for (int32 J = 0; J < Depth; ++J)
+		{
+			for (int32 K = 0; K < Height; ++K)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Voxels[%d,%d,%d]:%d"),
+					I, J, K,
+					Voxels[GetArrayIndex(I, J, K)]
+				)
+			}
+		}
+	}
 }
 
 #pragma endregion
 
 #pragma region Private functions
 
-int32 UChunkMap::GetArrayIndex(int32 I, int32 J, int32 K) const
-{
-	return I + X * (J + Y * K);
-}
-
 int32 UChunkMap::GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return GetArrayIndex(I, J, K) % VoxelTypesQuantity == 0;
+	return GetArrayIndex(I, J, K) % VoxelTypes == 0;
 }
 
-int32 UChunkMap::GetDiagonalPatternValue(const int32 I, const int32 J, const int32 K) const
+int32 UChunkMap::GetPlanePatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  I == J || I == K || J == K;
+	return  K < 1 ? GetRandomSolidVoxel() : VoxelTypes - 1;
 }
 
 int32 UChunkMap::GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  IsBorder(I, J, K) ? FMath::RandRange(0, VoxelTypesQuantity - 2) : VoxelTypesQuantity - 1;
-}
-
-int32 UChunkMap::GetRandomPatternValue() const
-{
-	return  FMath::RandRange(0, VoxelTypesQuantity - 1);
+	return  IsBorder(I, J, K) ? GetRandomSolidVoxel() : VoxelTypes - 1;
 }
 
 int32 UChunkMap::GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  GetHollowPatternValue(I, J, K) < VoxelTypesQuantity - 1 ? GetRandomPatternValue() : VoxelTypesQuantity - 1;
+	return  GetHollowPatternValue(I, J, K) < VoxelTypes - 1 ? GetRandomVoxel() : VoxelTypes - 1;
+}
+
+int32 UChunkMap::GetRandomVoxel() const
+{
+	return  FMath::RandRange(0, VoxelTypes - 1);
+}
+
+int32 UChunkMap::GetRandomSolidVoxel() const
+{
+	return FMath::Clamp(FMath::RandRange(0, VoxelTypes - 1) - 1, 0, VoxelTypes - 2);
 }
 
 bool UChunkMap::IsBorder(const int32 I, const int32 J, const int32 K) const
 {
 	return  (I == 0 && (J >= 0 && K >= 0)) || (I == 0 && (J >= 0 && K >= 0)) || (J == 0 && (I >= 0 && K == 0))
-		|| ((I >= 0 && J >= 0) && K == Z - 1) || ((I >= 0 && K >= 0) && J == Y - 1) || ((J >= 0 && K >= 0) && I == X - 1)
-		|| ((I <= X - 1 && J <= Y - 1) && K == 0) || ((I <= X - 1 && K <= Z - 1) && J == 0) || ((J <= Y - 1 && K <= Z - 1) && I == 0);
+		|| ((I >= 0 && J >= 0) && K == Height - 1) || ((I >= 0 && K >= 0) && J == Depth - 1) || ((J >= 0 && K >= 0) && I == Width - 1)
+		|| ((I <= Width - 1 && J <= Depth - 1) && K == 0) || ((I <= Width - 1 && K <= Height - 1) && J == 0) || ((J <= Depth - 1 && K <= Height - 1) && I == 0);
 }
 
 void UChunkMap::GenerateValue(const int32 I, const int32 J, const int32 K)
@@ -161,8 +171,8 @@ void UChunkMap::GenerateValue(const int32 I, const int32 J, const int32 K)
 	case EChunkPattern::CP_Modulum:
 		Voxels[GetArrayIndex(I, J, K)] = GetModulumPatternValue(I, J, K);
 		break;
-	case EChunkPattern::CP_Diagonal:
-		Voxels[GetArrayIndex(I, J, K)] = GetDiagonalPatternValue(I, J, K);
+	case EChunkPattern::CP_Plane:
+		Voxels[GetArrayIndex(I, J, K)] = GetPlanePatternValue(I, J, K);
 		break;
 	case EChunkPattern::CP_Hollow:
 		Voxels[GetArrayIndex(I, J, K)] = GetHollowPatternValue(I, J, K);
@@ -171,7 +181,7 @@ void UChunkMap::GenerateValue(const int32 I, const int32 J, const int32 K)
 		Voxels[GetArrayIndex(I, J, K)] = GetRandomHollowPatternValue(I, J, K);
 		break;
 	case EChunkPattern::CP_Random:
-		Voxels[GetArrayIndex(I, J, K)] = GetRandomPatternValue();
+		Voxels[GetArrayIndex(I, J, K)] = GetRandomVoxel();
 		break;
 	default:
 		UE_LOG(LogTemp, Error, TEXT("EChunkPattern::%s not implemented"),
