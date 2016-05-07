@@ -86,6 +86,18 @@ void UChunkMap::SetVoxel(int32 I, int32 J, int32 K, const int32 Voxel)
 	Voxels[GetArrayIndex(I, J, K)] = Voxel;
 }
 
+void UChunkMap::AddVoxel(int32 I, int32 J, int32 K, const int32 VoxelType)
+{
+	SetVoxel(I, J, K, VoxelType);
+	OnAddVoxel.Broadcast();
+}
+
+void UChunkMap::RemoveVoxel(int32 I, int32 J, int32 K)
+{
+	SetVoxel(I, J, K, VoxelTypes - 1);
+	OnRemoveVoxel.Broadcast();
+}
+
 void UChunkMap::SetChunkPattern(EChunkPattern Pattern)
 {
 	this->Pattern = Pattern;
