@@ -9,7 +9,7 @@ UENUM(BlueprintType)
 enum class EChunkPattern : uint8
 {
 	CP_Modulum			UMETA(DisplayName = "Modulum"),
-	CP_Diagonal		UMETA(DisplayName = "Diagonal"),
+	CP_Plane			UMETA(DisplayName = "Plane"),
 	CP_Hollow			UMETA(DisplayName = "Hollow"),
 	CP_Random			UMETA(DisplayName = "Random"),
 	CP_Random_Hollow	UMETA(DisplayName = "Random Hollow"),
@@ -34,13 +34,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Generation")
-		void SetVolume(int32 X, int32 Y, int32 Z);
+		void SetVolume(int32 Width, int32 Depth, int32 Height);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Generation")
 		void GenerateChunk();
-
-	UFUNCTION(BlueprintCallable, Category = "Chunk Utils")
-		void LogVoxels() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Getters")
 		int32 GetVoxel(int32 I, int32 J, int32 K) const;
@@ -52,45 +49,53 @@ public:
 		int32 GetVoxelTypes() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
-		void SetVoxel(const int32 I, const int32 J, const int32 K, const int32 Voxel);
+		void SetVoxel(int32 I, int32 J, int32 K, const int32 Voxel);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
 		void SetChunkPattern(EChunkPattern Pattern);
 
 	UFUNCTION(BlueprintCallable, Category = "Chunk Setters")
-		void SetVoxelTypes(int32 VoxelTypesQuantity);
+		void SetVoxelTypes(int32 VoxelTypes);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Utils")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Utils")
 		int32 GetArrayIndex(int32 I, int32 J, int32 K) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Chunk Utils")
+		bool IsValidIndex(int32 I, int32 J, int32 K) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Chunk Utils")
+		void LogVoxels() const;
 
 private:
 	UPROPERTY(VisibleAnywhere)
 		EChunkPattern Pattern;
 
 	UPROPERTY(VisibleAnywhere)
-		int32 VoxelTypesQuantity;
+		int32 VoxelTypes;
 
 	UPROPERTY(VisibleAnywhere)
-		int32 X;
+		int32 Width;
 
 	UPROPERTY(VisibleAnywhere)
-		int32 Y;
+		int32 Depth;
 
 	UPROPERTY(VisibleAnywhere)
-		int32 Z;
+		int32 Height;
 
 	UPROPERTY(VisibleAnywhere)
 		TArray<int32> Voxels;
 
 	int32 GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const;
 
-	int32 GetDiagonalPatternValue(const int32 I, const int32 J, const int32 K) const;
+	int32 GetPlanePatternValue(const int32 I, const int32 J, const int32 K) const;
 
 	int32 GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
 
-	int32 GetRandomPatternValue() const;
-
 	int32 GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetRandomVoxel() const;
+
+	int32 GetRandomSolidVoxel() const;
 
 	bool IsBorder(const int32 I, const int32 J, const int32 K) const;
 
