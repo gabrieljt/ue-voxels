@@ -19,7 +19,7 @@ VoxelEngine with Unreal Engine 4 (11.2)
 
 * Known Bugs
  - Sound enabled stutters;
- - Game Voxel selection through World Location needs math fixes (help!);
+ - World Location to Voxel Index is wrong, help!;
 
 * TODOs:
  - PERFORMANCE: Instantiate viewable Game Voxels only;
