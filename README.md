@@ -2,11 +2,14 @@
 VoxelEngine with Unreal Engine 4 (11.2)
 
 * Features
- - Blueprint Prototyping
+ - Blueprint Prototyping;
  - Instanced Static Mesh Component for each Game Voxel type;
  - Chunk C++ Class for indexing Logical Voxels;
  - Some patterns for Chunk generation;
  
+* Setup
+ - Voxels_BP in the World Outliner;
+
 * Input
  - Mouse left button -> Add Voxel;
  - Mouse right button -> Remove Voxel;
