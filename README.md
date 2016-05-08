@@ -1,4 +1,4 @@
-# ue-voxels
+# ue-voxels 0.1
 VoxelEngine with Unreal Engine 4 (11.2)
 
 * Features
@@ -6,6 +6,7 @@ VoxelEngine with Unreal Engine 4 (11.2)
  - Instanced Static Mesh Component for each Game Voxel type;
  - Chunk C++ Class for indexing Logical Voxels;
  - Some patterns for Chunk generation;
+ - Neat LookingAtVoxel Preview;
  
 * Setup
  - Voxels_BP in the World Outliner;
