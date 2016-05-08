@@ -10,6 +10,7 @@ UChunkMap::UChunkMap()
 	, Depth(3)
 	, Height(3)
 	, Voxels()
+	, Chunks()
 {
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
@@ -24,6 +25,7 @@ UChunkMap::UChunkMap(const int32 Width, const int32 Depth, const int32 Height)
 	, Depth(Depth)
 	, Height(Height)
 	, Voxels()
+	, Chunks()
 {
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
@@ -54,6 +56,8 @@ void UChunkMap::SetVolume(int32 Width, int32 Depth, int32 Height)
 
 void UChunkMap::GenerateChunk()
 {
+	Chunks.Add(FIntVector(0, 0, 0), NewObject<UChunk>());
+	Chunks[FIntVector(0, 0, 0)]->SetVolume(Width, Depth, Height);
 	for (int32 I = 0; I < Width; ++I)
 	{
 		for (int32 J = 0; J < Depth; ++J)
@@ -61,9 +65,11 @@ void UChunkMap::GenerateChunk()
 			for (int32 K = 0; K < Height; ++K)
 			{
 				GenerateValue(I, J, K);
+				Chunks[FIntVector(0, 0, 0)]->SetVoxel(I, J, K, Voxels[GetArrayIndex(I, J, K)]);
 			}
 		}
 	}
+	Chunks[FIntVector(0, 0, 0)]->LogVoxels();
 }
 
 int32 UChunkMap::GetVoxel(int32 I, int32 J, int32 K) const

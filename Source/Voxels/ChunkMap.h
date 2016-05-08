@@ -3,9 +3,7 @@
 #pragma once
 
 #include "Components/SceneComponent.h"
-
 #include "Chunk.h"
-
 #include "ChunkMap.generated.h"
 
 UENUM(BlueprintType)
@@ -101,10 +99,9 @@ private:
 		int32 Height;
 
 	UPROPERTY(VisibleAnywhere)
-		TArray<UChunk*> Chunks;
-
-	UPROPERTY(VisibleAnywhere)
 		TArray<int32> Voxels;
+
+	TMap<FIntVector, UChunk*> Chunks;
 
 	int32 GetModulumPatternValue(const int32 I, const int32 J, const int32 K) const;
 
