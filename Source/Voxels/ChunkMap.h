@@ -8,6 +8,7 @@
 UENUM(BlueprintType)
 enum class EChunkPattern : uint8
 {
+	CP_Empty			UMETA(DisplayName = "Empty"),
 	CP_Modulum			UMETA(DisplayName = "Modulum"),
 	CP_Plane			UMETA(DisplayName = "Plane"),
 	CP_Hollow			UMETA(DisplayName = "Hollow"),
@@ -106,6 +107,8 @@ private:
 	int32 GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
 
 	int32 GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const;
+
+	int32 GetEmptyVoxel() const;
 
 	int32 GetRandomVoxel() const;
 

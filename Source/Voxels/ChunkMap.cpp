@@ -4,7 +4,7 @@
 #include "ChunkMap.h"
 
 UChunkMap::UChunkMap()
-	: Pattern(EChunkPattern::CP_Plane)
+	: Pattern(EChunkPattern::CP_Empty)
 	, VoxelTypes(2) // Default Solid and Empty Types (0, 1)
 	, Width(3)
 	, Depth(3)
@@ -18,7 +18,7 @@ UChunkMap::UChunkMap()
 }
 
 UChunkMap::UChunkMap(const int32 Width, const int32 Depth, const int32 Height)
-	: Pattern(EChunkPattern::CP_Plane)
+	: Pattern(EChunkPattern::CP_Empty)
 	, VoxelTypes(2)
 	, Width(Width)
 	, Depth(Depth)
@@ -94,7 +94,7 @@ void UChunkMap::AddVoxel(int32 I, int32 J, int32 K, const int32 VoxelType)
 
 void UChunkMap::RemoveVoxel(int32 I, int32 J, int32 K)
 {
-	SetVoxel(I, J, K, VoxelTypes - 1);
+	SetVoxel(I, J, K, GetEmptyVoxel());
 	OnRemoveVoxel.Broadcast();
 }
 
@@ -146,27 +146,32 @@ int32 UChunkMap::GetModulumPatternValue(const int32 I, const int32 J, const int3
 
 int32 UChunkMap::GetPlanePatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  K < 1 ? GetRandomSolidVoxel() : VoxelTypes - 1;
+	return  K < 1 ? GetRandomSolidVoxel() : GetEmptyVoxel();
 }
 
 int32 UChunkMap::GetHollowPatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  IsBorder(I, J, K) ? GetRandomSolidVoxel() : VoxelTypes - 1;
+	return  IsBorder(I, J, K) ? GetRandomSolidVoxel() : GetEmptyVoxel();
 }
 
 int32 UChunkMap::GetRandomHollowPatternValue(const int32 I, const int32 J, const int32 K) const
 {
-	return  GetHollowPatternValue(I, J, K) < VoxelTypes - 1 ? GetRandomVoxel() : VoxelTypes - 1;
+	return  GetHollowPatternValue(I, J, K) < GetEmptyVoxel() ? GetRandomVoxel() : GetEmptyVoxel();
+}
+
+int32 UChunkMap::GetEmptyVoxel() const
+{
+	return  VoxelTypes - 1;
 }
 
 int32 UChunkMap::GetRandomVoxel() const
 {
-	return  FMath::RandRange(0, VoxelTypes - 1);
+	return  FMath::RandRange(0, GetEmptyVoxel());
 }
 
 int32 UChunkMap::GetRandomSolidVoxel() const
 {
-	return FMath::Clamp(FMath::RandRange(0, VoxelTypes - 1) - 1, 0, VoxelTypes - 2);
+	return FMath::Clamp(FMath::RandRange(0, GetEmptyVoxel()) - 1, 0, VoxelTypes - 2);
 }
 
 bool UChunkMap::IsBorder(const int32 I, const int32 J, const int32 K) const
@@ -180,6 +185,9 @@ void UChunkMap::GenerateValue(const int32 I, const int32 J, const int32 K)
 {
 	switch (Pattern)
 	{
+	case EChunkPattern::CP_Empty:
+		Voxels[GetArrayIndex(I, J, K)] = GetEmptyVoxel();
+		break;
 	case EChunkPattern::CP_Modulum:
 		Voxels[GetArrayIndex(I, J, K)] = GetModulumPatternValue(I, J, K);
 		break;
