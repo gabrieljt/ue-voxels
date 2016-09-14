@@ -6,8 +6,8 @@ public class Voxels : ModuleRules
 {
 	public Voxels(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
-
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SimplexNoise" });
+		PublicIncludePaths.AddRange(new string[] { "SimplexNoise/Private", "SimplexNoise/Public" });
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI

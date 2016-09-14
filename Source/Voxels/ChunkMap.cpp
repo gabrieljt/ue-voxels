@@ -2,6 +2,7 @@
 
 #include "Voxels.h"
 #include "ChunkMap.h"
+#include "SimplexNoiseBPLibrary.h"
 
 UChunkMap::UChunkMap()
 	: Pattern(EChunkPattern::CP_Empty)
@@ -49,18 +50,35 @@ void UChunkMap::SetVolume(int32 Width, int32 Depth, int32 Height)
 	this->Width = Width;
 	this->Depth = Depth;
 	this->Height = Height;
-	Voxels.Init(0, Width * Depth * Height);
+	Voxels.Init(GetEmptyVoxel(), Width * Depth * Height);
 }
 
 void UChunkMap::GenerateChunk()
 {
-	for (int32 I = 0; I < Width; ++I)
+	if (Pattern == EChunkPattern::CP_Noise)
 	{
-		for (int32 J = 0; J < Depth; ++J)
+		for (int32 I = 0; I < Width; ++I)
 		{
-			for (int32 K = 0; K < Height; ++K)
+			for (int32 J = 0; J < Depth; ++J)
 			{
-				GenerateValue(I, J, K);
+				int32 height = FMath::Clamp((int32)(FMath::Abs(USimplexNoiseBPLibrary::SimplexNoise2D(I, J)) * Height), 0, Height);
+				for (int32 K = 0; K < height; ++K)
+				{
+					Voxels[GetArrayIndex(I, J, K)] = K < Height / 3 ? 0 : 1;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int32 I = 0; I < Width; ++I)
+		{
+			for (int32 J = 0; J < Depth; ++J)
+			{
+				for (int32 K = 0; K < Height; ++K)
+				{
+					GenerateValue(I, J, K);
+				}
 			}
 		}
 	}
